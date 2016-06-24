@@ -1,28 +1,29 @@
-package fii.licenta.ioana.securebitexchange.nsd;
+package fii.licenta.ioana.nsd;
 
+import android.net.nsd.NsdServiceInfo;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.IOException;
 import java.net.InetAddress;
-
-import fii.licenta.ioana.securebitexchange.R;
-import fii.licenta.ioana.securebitexchange.protocol.ProtocolClient;
-import fii.licenta.ioana.securebitexchange.protocol.ProtocolServer;
+import java.net.ServerSocket;
 
 /**
  * Created by Ioana on 20/04/2016.
  */
-public class MainActivity extends AppCompatActivity {
+public class NsdActivity extends AppCompatActivity {
 
     private NsdHelper mNsdHelper;
 
-    public static final String TAG = "MainActivity";
+    public static final String TAG = "NsdActivity";
 
     private TextView textView;
     private Button button;
@@ -48,20 +49,32 @@ public class MainActivity extends AppCompatActivity {
         mNsdHelper.initializeNsd();
         Handler handler = new Handler(Looper.getMainLooper());
 
-        mNsdHelper.initializeServerSocket();
+        mNsdHelper.discoverServices();
 
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                System.out.println(TAG + " S-a inregistrat? " + mNsdHelper.registered);
-                System.out.println(TAG + " Terminat.");
-                textView.setText("Server terminal.");
+                NsdServiceInfo service = mNsdHelper.getChosenServiceInfo();
+            }
+        }, 4000);
 
-                initServerButton();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                NsdServiceInfo service = mNsdHelper.getChosenServiceInfo();
+                if (service != null && mNsdHelper.resolved) {
+                    port = service.getPort();
+                    host = service.getHost();
+                    System.out.println("Conectat la " + String.valueOf(host) + " " + port);
+                    mNsdHelper.stopDiscovery();
+                }
+
+                textView.setText("Client terminal.");
+
+                initClientButton();
                 button.setVisibility(View.VISIBLE);
             }
-        }, 3000);
-
+        }, 4000);
 
     }
 

@@ -1,5 +1,9 @@
 package fii.licenta.ioana.securebitexchange.protocol;
 
+import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -20,14 +24,25 @@ import javax.crypto.SecretKey;
 public class ProtocolServer implements Runnable{
     private static SecretKey serverSecretKey = null;
     private static Cipher cipher = null;
+    private static byte[] encryptionBytes = null;
+    private static byte[] encryptedClientBytes = null;
 
     private ServerSocket listener = null;
 
+    static private int random = -1;
+    public static boolean ok = false;
     public static boolean ended = false;
     public static byte xor;
 
-    public ProtocolServer(ServerSocket serverSocket){
+    private static TextView firstTextView;
+    private static Button button;
+    private static TextView secondTextView;
+
+    public ProtocolServer(ServerSocket serverSocket, TextView one, TextView two, Button button){
         this.listener = serverSocket;
+        this.firstTextView = one;
+        this.secondTextView = two;
+        this.button = button;
     }
 
     public void start() throws IOException {
@@ -51,6 +66,12 @@ public class ProtocolServer implements Runnable{
     }
 
     private static void resolveClient(Socket client) throws IOException {
+        firstTextView.post(new Runnable() {
+            public void run() {
+                firstTextView.setText("");
+            }
+        });
+
         System.out.println("Client connected.");
 
         ObjectOutputStream out = new ObjectOutputStream(client.getOutputStream());
@@ -59,12 +80,22 @@ public class ProtocolServer implements Runnable{
         ObjectInputStream in = new ObjectInputStream(client.getInputStream());
         System.out.println("In stream: " + in);
 
-        Random random = new Random();
-        byte serverByte = (byte) random.nextInt(2);
+        generateRandom();
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        final byte serverByte = (byte) random;
+
+        firstTextView.post(new Runnable() {
+            public void run() {
+                firstTextView.append("Am ales " + serverByte + ".\n");
+            }
+        });
 
         System.out.println("Byte: " + serverByte);
 
-        byte[] encryptionBytes = null;
         try {
             serverSecretKey = KeyGenerator.getInstance("DESede").generateKey();
             cipher = Cipher.getInstance("DESede");
@@ -77,7 +108,13 @@ public class ProtocolServer implements Runnable{
             e.printStackTrace();
         }
 
-        byte[] encryptedClientBytes = null;
+        firstTextView.post(new Runnable() {
+            public void run() {
+                firstTextView.append("Cheia mea este " + new String(serverSecretKey.getEncoded()) + ".\n");
+                firstTextView.append("Bitul meu criptat este " + new String(encryptionBytes) + ".\n");
+            }
+        });
+
         try {
             encryptedClientBytes = (byte[]) in.readObject();
             System.out.println("Client sent encrypted bytes: " + new String(encryptedClientBytes));
@@ -85,11 +122,41 @@ public class ProtocolServer implements Runnable{
             e.printStackTrace();
         }
 
+        firstTextView.post(new Runnable() {
+            public void run() {
+                firstTextView.append("Am primit de la client bitul criptat: " + new String(encryptedClientBytes) + ".\n");
+            }
+        });
+
         out.writeObject(encryptionBytes);
         out.flush();
 
         try {
             Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        button.post(new Runnable() {
+            @Override
+            public void run() {
+                button.setVisibility(View.VISIBLE);
+                button.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        ok = true;
+                        secondTextView.setVisibility(View.VISIBLE);
+                        secondTextView.setText("");
+                    }
+                });
+
+            }
+        });
+
+        try {
+            while(!ok){
+                Thread.sleep(1000);
+            }
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -106,13 +173,39 @@ public class ProtocolServer implements Runnable{
         out.writeObject(serverSecretKey);
         out.flush();
 
-        String decryptedClientByte = decrypt(encryptedClientBytes, clientSecretKey, cipher);
+        final String decryptedClientByte = decrypt(encryptedClientBytes, clientSecretKey, cipher);
         System.out.println("Decrypted client's byte choice: " + decryptedClientByte);
 
-        byte clientByte = Byte.valueOf(decryptedClientByte);
+        secondTextView.post(new Runnable() {
+            public void run() {
+                secondTextView.append("Clientul a ales: " + decryptedClientByte + ".\n");
+            }
+        });
+
+        final byte clientByte = Byte.valueOf(decryptedClientByte);
         xor = (byte) (clientByte ^ serverByte);
 
         System.out.println("XOR : " + xor);
+
+        secondTextView.post(new Runnable() {
+            public void run() {
+                secondTextView.append(serverByte + " xor " + clientByte + " = " + xor + ".\n");
+            }
+        });
+
+        if(xor == 0){
+            secondTextView.post(new Runnable() {
+                public void run() {
+                    secondTextView.append("Serverul incepe.\n");
+                }
+            });
+        }else{
+            secondTextView.post(new Runnable() {
+                public void run() {
+                    secondTextView.append("Clientul incepe.\n");
+                }
+            });
+        }
 
         ended = true;
         in.close();
@@ -150,6 +243,11 @@ public class ProtocolServer implements Runnable{
             e.printStackTrace();
         }
         return new String(decrypt);
+    }
+
+    public static void generateRandom(){
+        HttpRequest request = (HttpRequest) new HttpRequest().execute();
+        random = request.getIntResult();
     }
 
     @Override

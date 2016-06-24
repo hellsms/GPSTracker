@@ -1,0 +1,25 @@
+  textView.setText("Client terminal.");
+
+        mNsdHelper.discoverServices();
+
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                NsdServiceInfo service = mNsdHelper.getChosenServiceInfo();
+                if (service != null) {
+                    System.out.print(String.valueOf(service.getHost()) + " " + service.getPort());
+                }
+            }
+        }, 3000);
+
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                mNsdHelper.stopDiscovery();
+            }
+        }, 3000);
+
+        NsdServiceInfo service = mNsdHelper.getChosenServiceInfo();
+        if (service != null) {
+            System.out.print(String.valueOf(service.getHost()) + " " + service.getPort());
+        }

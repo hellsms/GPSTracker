@@ -1,0 +1,10 @@
+   mNsdHelper.initializeServerSocket();
+
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                System.out.println(TAG + " S-a inregistrat? " + mNsdHelper.registered);
+                System.out.println(TAG + " Terminat.");
+                textView.setText("Server terminal.");
+            }
+        }, 3000);

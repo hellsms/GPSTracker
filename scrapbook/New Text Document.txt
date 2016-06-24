@@ -1,0 +1,31 @@
+mNsdHelper.discoverServices();
+
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                mNsdHelper.stopDiscovery();
+            }
+        }, 5000);
+
+        //if (mNsdHelper.resolved) {
+            service = mNsdHelper.getChosenServiceInfo();
+            if (service != null) {
+              // Thread client = new Thread(new ProtocolClient(service.getHost(), service.getPort()));
+               // client.start();
+                textView.setText("Client Terminal");
+            }
+        /*} else {
+            mNsdHelper.initializeServerSocket();
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    Thread server = new Thread(new ProtocolServer(mNsdHelper.mServerSocket));
+                    server.start();
+                }
+            }, 3000);
+            textView.setText("Server Terminal");
+        }
+*/
+
+
+192.168.100.5

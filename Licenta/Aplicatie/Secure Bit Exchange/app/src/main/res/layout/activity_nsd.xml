@@ -7,7 +7,8 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context=".nsd.MainActivity">
+    android:background="@color/background"
+    tools:context=".application.MainActivity">
 
     <TextView
         android:id="@+id/textView1"
@@ -19,9 +20,43 @@
 
     <Button
         android:id="@+id/button1"
+        android:layout_marginTop="20dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/textView1"
-        android:text="Choose starting player"
+        android:layout_centerHorizontal="true"
+        android:textColor="@color/colorPrimary"
+        android:background="@drawable/greenbutton"
+        android:text="Start"
         android:textSize="16dp" />
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_marginTop="20dp"
+        android:layout_width="400dp"
+        android:layout_height="150dp"
+        android:layout_below="@id/button1"
+        android:layout_centerHorizontal="true"
+        android:background="@color/white"/>
+
+    <Button
+        android:id="@+id/button2"
+        android:layout_marginTop="20dp"
+        android:layout_below="@id/textView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:textColor="@color/colorPrimary"
+        android:background="@drawable/redbutton"
+        android:text="Ok"
+        android:textSize="16dp"/>
+    <TextView
+        android:id="@+id/textView3"
+        android:layout_marginTop="20dp"
+        android:layout_below="@id/button2"
+        android:background="@color/white"
+        android:layout_width="400dp"
+        android:layout_height="100dp"
+        android:layout_centerHorizontal="true"/>
+
 </RelativeLayout>

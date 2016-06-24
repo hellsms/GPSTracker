@@ -1,0 +1,26 @@
+ mNsdHelper.discoverServices();
+
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                NsdServiceInfo service = mNsdHelper.getChosenServiceInfo();
+            }
+        }, 3000);
+
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                NsdServiceInfo service = mNsdHelper.getChosenServiceInfo();
+                if (service != null && mNsdHelper.resolved) {
+                    port = service.getPort();
+                    host = service.getHost();
+                    System.out.println("Conectat la " + String.valueOf(host) + " " + port);
+                }
+                mNsdHelper.stopDiscovery();
+                terminalTextView.setText("Client terminal.");
+
+                initClientButton();
+                connectionTextView.setVisibility(View.VISIBLE);
+                startButton.setVisibility(View.VISIBLE);
+            }
+        }, 3000);

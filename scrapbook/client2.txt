@@ -1,0 +1,19 @@
+super.onStart();
+
+        mNsdHelper = new NsdHelper(this);
+        mNsdHelper.initializeNsd();
+        Handler handler = new Handler(Looper.getMainLooper());
+
+        mNsdHelper.discoverServices();
+
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                NsdServiceInfo service = mNsdHelper.getChosenServiceInfo();
+                if (service != null) {
+                    System.out.print(String.valueOf(service.getHost()) + " " + service.getPort());
+                }
+                mNsdHelper.stopDiscovery();
+                textView.setText("Client terminal.");
+            }
+        }, 3000);

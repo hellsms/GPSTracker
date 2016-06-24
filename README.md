@@ -1,3 +1,3 @@
-# Game Scorer App
+# Secure Bit Exchange App
 
-Android application made for managing board games and keeping score.
+Android application  - Bachelor's Degree final project.
